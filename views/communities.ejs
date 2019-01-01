@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<% include ./head%>
+
+</head>
+<body>
+<header>
+<% include ./headeruser%>
+</header>
+<div id="page-content-wrapper" style="padding:0;margin-top:60px">
+    <div class="container-fluid page-content-div" style="padding:0">
+       <div class="row">
+          <div class="col-lg-12 scoll-possible" style="padding:0">
+
+
+
+
+<div class="community-header-top" style="height:50px;padding-top:6px;">
+<div class="col-sm-12 community-sub-head">
+<a class="btn community-head-btn active" href="/communities">
+ <i class="fa fa-users"></i>
+</a>
+<a class="btn community-head-btn" style="margin-left:10px" href="/communityList">
+ <i class="fa fa-search"></i>
+</a>
+</div>
+</div>
+
+<div class="container" style="padding:0">
+<div class="col-sm-12">
+<div class="panel panel-default allSidesSoft community-panel-main-div">
+<div class="panel-heading community-panel-heading">
+ 
+   <p style="color:white;">My Communities</p>
+ 
+</div>
+<div class="panel-body" style="padding-bottom:0">
+ 
+</div>
+
+<div class="panel-body" style="padding-top:0;padding-bottom:0">
+        <% if(data.length){ 
+            for(var i = 0;i < data.length;i++) { %>
+      
+     <img src="images/logo.png"  class="loading-community-panel-image"  style="width:70px;height:70px;border:solid rgb(157, 209, 223);">
+     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;finance &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;finance</br>
+     <% }%>
+   <div id="community-that-am-in">
+
+   </div>
+</div>
+
+<div class="panel-body" style="padding-top:0">
+ <div id="my-pending-commuity">
+ </div>
+</div>
+
+</div>
+</div>
+</div>
+<br />
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -2,36 +2,6 @@
 var mongoose=require('mongoose');
 mongoose.connect('mongodb://localhost:27017/login_database', { useNewUrlParser: true });
 mongoose.set('useCreateIndex', true);
-///////////////multer
-
-var multer=require('multer');
-var fileFilter=function(req,file,callback)
-{
-if(file.mimetype==='image/jpeg' || file.mimetype==='image/png'|| file.mimetype==='image/jpg`1')
-{
-    callback(null,true);
-}
-else{
-    callback(null,false);
-}
-}
-var storage=multer.diskStorage({
-    destination:function(req,file,callback)
-    {
-        callback(null,'./upload');
-    },
-    filename:function(req,file,callback)
-    {
-        callback(null,Date.now()+file.originalname);
-    }
-});
-var upload=multer({storage:storage,
-fileFilter:fileFilter
-}).single('profilePhoto');
-
-
-////////////
-
 
 
 
@@ -127,7 +97,118 @@ expect:{
 });
 var user2=mongoose.model('user_database',UserSchema2,'user_database');
 
+var communitySchema =mongoose.Schema({
+    pic:
+    {
+        type:String,
+      
+    },
+rule:
+    {
+      type:String,
 
+    },
+name:
+    {
+type:String,
+required :true
+    },
+description:
+{
+    type:String
+},
+owner:
+{
+    type:String,
+    required:true
+},
+date:
+{
+    type:String
+},
+request:[{type:String}],
+member:[{type:String}],
+invite:[{type:String}]
+});
+var community_manager=mongoose.model('Community_data',communitySchema,'Community_data');
+
+var discussionSchema=mongoose.Schema({
+name:{
+type:String,
+required:true,
+unique:true,
+},
+detail:[{
+pic:[{type:String}],
+title:[{type:String}]
+
+}],
+loc:
+{
+    type:String,
+},
+
+});
+var discussion=mongoose.model('discussion',discussionSchema,'discussion');
+
+var commentSchema=mongoose.Schema({
+title_club:{
+    type:String,
+    required:true
+},
+comment:[{type:String}]
+});
+
+var comment=mongoose.model('comment',commentSchema,'comment');
+
+
+module.exports.createCommunity=function(req,username,callback){
+  var d=new Date();
+  var dat=d.getFullYear()+"-"+d.getMonth()+1+"-"+d.getDate();
+
+    var newuser1=new community_manager({
+        pic:req.file.filename,
+        
+    rule:req.body.type,
+    name:req.body.name,
+    description:req.body.description,
+    owner:username,
+    date:dat,
+    request:[""],
+    member:[""],
+    invite:[""]
+    });
+
+    newuser1.save(function (err, user) {
+        if (err) 
+        {
+            callback(null,false);
+        }
+        else{
+console.log("write schema 1succesfully");
+callback(null,user);
+        }
+      });
+
+    
+}
+module.exports.updateCommunity=function(req,callback)
+{
+    community_manager.findOne({name:req.body.name},function(err,user)
+    {
+  user.pic=req.file.filename,
+ user.rule=req.body.type,
+    user.name=req.body.name,
+    user.description=req.body.description,
+        user.save(function (err) {
+            if(err) {
+                console.error('ERROR!');
+            }
+        
+        });
+        callback(null,user);
+    });
+}
 module.exports.compare1=function(doc,callback)
 {
      var query1={email:doc.email};
@@ -140,28 +221,114 @@ module.exports.compare1=function(doc,callback)
     
     else if(user.flag ==='activate' && user.password === doc.password)
     {
-      
         callback(null,user);
     }
     else
     {
-        
+
         callback(null,false);
     }
 });
 }
  
-module.exports.compare2=function(doc,callback)
+module.exports.compare=function(doc,callback)
 {
      var query2={email:doc};
+     user2.findOne(query2, function(err, user) {
+        
+         callback(null,user);
+     
+ });
+}
+
+module.exports.changePasswordAdmin=function(req,callback)
+{
+     var query2={email:req.query.q};
+     user1.findOne(query2, function(err, user) {
+        user.password=req.body.newPassword;
+        user.save(function (err) {
+            if(err) {
+                console.error('ERROR!');
+            }
+        });
+         callback();
+     
+ });
+}
+
+module.exports.changePassword=function(req,callback)
+{
+     var query2={email:req.query.q};
+     user1.findOne(query2, function(err, user) {
+        user.password=req.body.newPassword;
+        user.save(function (err) {
+            if(err) {
+                console.error('ERROR!');
+            }
+        });
+        callback();
+     
+ });
+}
+
+module.exports.changeStatus=function(req,callback)
+{
+     var query2={email:req.query.q};
+     user1.findOne(query2, function(err, user) {
+        user.flag=req.body.flag;
+        user.save(function (err) {
+            if(err) {
+                console.error('ERROR!');
+            }
+        });
+        callback();
+     
+ });
+}
+
+module.exports.compare2=function(doc,callback)
+{
+   if(doc.role==='admin')
+   {
+    var query2={email:doc.email};
     user2.findOne(query2, function(err, user) {
        
         callback(null,user);
     
 });
+   }
+   else if(doc.role==='user')
+   {
+    user2.findOne({email:doc.email}, function(err, user) {
+    community_manager.find({member:{$in:[user.name]}},function(err,user)
+        {
+            callback(err,user);
+        });
+    
+});
+
+   
+}
+   else
+   {
+   
+    community_manager.find({$or:[{member:{$in:[doc.name]}},{owner:doc.name}]},function(err,user)
+    {
+        callback(err,user);
+    });
+ 
+   }
 }
 
-
+module.exports.editProfile=function(req,callback)
+{
+var query2={email:req};
+    user2.findOne(query2, function(err, user) {
+       
+        callback(null,user);
+    
+});
+   }
 
 
 module.exports.getUserById=function(id,callback)
@@ -210,30 +377,6 @@ console.log("write schema 1succesfully");
 }
   
 
-module.exports.createUser2=function(req) {
-
-    var newuser2=new user2({
-        pic:req.profilePhoto,
-        role:req.body.roleoptions,
-        phone:req.body.phone,
-        city:req.body.city,
-        email:req.body.username,
-        name:req.body.fullname,
-        dob:req.body.dob,
-        gender:req.body.gender,
-        interest:req.body.interest,
-        journey:req.body.aboutjourney,
-        expect:req.body.expect
-    });
-
-    newuser2.save(function (err, user) {
-        if (err) return console.error(err);
-console.log("write schema2 succesfully");
-         
-    });
-}
-
-
 //updateProfile
 module.exports.updateProfile=function(req,callback)
 {
@@ -249,21 +392,8 @@ module.exports.updateProfile=function(req,callback)
         user.interest=req.body.interest,
         user.journey=req.body.aboutjourney,
         user.expect=req.body.expect,
-        user.pic=req.body.profilePhoto
-  /* upload(req,(err)=>
-    {
-        if(err)
-        {
-            console.log("error");
-        }
-        else if(req.profilePhoto==undefined)
-        {
-         console.log("error");
-        }
-        else{
-       user.pic=`upload/${req.profilePhoto.filename}`;      
-        }
-      });*/
+        user.pic=req.file.filename
+
     
         user.save(function (err) {
             if(err) {
@@ -313,11 +443,162 @@ console.log("write schema2 succesfully");
 });
 
 }
+
 module.exports.getAll=function(callback)
 {
     user1.find({},function(err,user)
     {
         callback(err,user);
     });
+
+}
+
+
+module.exports.getAllCommunity=function(callback)
+{
+    community_manager.find({},function(err,user)
+    {
+        callback(err,user);
+    });
+
+}
+
+module.exports.getDataCommunity=function(doc,callback)
+{
+community_manager.find({name:doc},function(err,user)
+{
+callback(err,user);
+});
+}
+
+module.exports.userCommunity=function(doc,callback)
+{
+    user2.findOne({email:doc}, function(err, user) {
+        community_manager.find({member:{$in:[user.name]}},function(err,user)
+            {
+                callback(err,user);
+            });
+        
+    });
+}
+
+module.exports.communityOwner=function(user,callback)
+{
+   
+        community_manager.find({$or:[{member:{$in:[user]}},{owner:user}]},function(err,user)
+            {
+                callback(err,user);
+            });
+        
+}
+
+module.exports.getcommunity=function(user,callback)
+{
+   
+        community_manager.find({name:user},function(err,user)
+            {
+                callback(err,user);
+            });
+        
+}
+
+module.exports.joinCommunity=function(clubname,username,callback)
+{
+community_manager.findOne({name:clubname,member:{$in:[username]}},function(err,user)
+{
+                if(!user)
+                {
+
+ community_manager.update({ name: clubname },{ $push: { member: username } },function(err,user)
+           {                        console.log("added"); 
+                    callback(null,false);
+                });
+                }
+                else{
+                    console.log("present");
+                
+                callback(null,true);
+                }
+  
+});
+}
+
+module.exports.askCommunity=function(clubname,username,callback)
+{
+community_manager.findOne({name:clubname,$or:[{member:{$in:[username]}},{request:{$in:[username]}}]},function(err,user)
+{
+                if(!user)
+                {
+
+ community_manager.update({ name: clubname },{ $push: { request: username } },function(err,user)
+           {                        console.log("added"); 
+                    callback(null,false);
+                });
+                }
+                else{
+                    console.log("present");
+                
+                callback(null,true);
+                }
+  
+});
+}
+
+
+module.exports.searchCommunity=function(clubname,callback)
+{
+community_manager.findOne({name:clubname},function(err,user)
+{
+    if(!user)
+    {
+           callback(null,false);
+    }
+    else{
+callback(null,user);
+    }
+});
+}
+module.exports.leaveCommunity=function(username,clubname,callback)
+{
+    community_manager.findOne({name:clubname,member:{$in:[username]}},function(err,user)
+    {
+                    if(user)
+                    {
+     community_manager.update({ name: clubname },{ $pull: { member: username } },function(err,user)
+               {                  
+                        callback(null,user);
+                    });
+                    }
+                    else{
+
+                    
+                    callback(null,false);
+                    }
+      
+    });
+}
+
+
+
+module.exports.createDiscussion=function(req,clubname,callback)
+{
+
+    var newuser1=new discussion({
+        
+        name:clubname,
+        detail:[{
+            pic:[req.file.filename]},{
+            title:[req.body.title]
+              }],
+            loc:"",
+    });
+
+    newuser1.save(function (err, user) {
+        if (err) return console.error(err);
+console.log("write discussion schema succesfully");
+callback(null,user);
+      });
+
+
 
 }

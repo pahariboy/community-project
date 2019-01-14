@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<% include ./head%>
+</head>
+<body>
+<header>
+<% include ./header%>
+
+</header>
+
+<div class="profile-pic-center-main-div mobile" style="margin-bottom:80px">
+  <img src="/images/<%=profile.pic%>" class="profile-pic-center allSides" />
+</div>
+
+<div class='content-div'>
+        <div class="container">
+            <div class="card allSidesSoft" style="background:rgb(249, 249, 249)">
+              <div class="card-body">
+
+              
+                <div class="d-flex pc">
+                    <div class="image-container">
+                        <img src="/images/<%=profile.pic%>" id="user-profile-image" style="width: 150px; height: 150px" class="img-thumbnail allSidesSoft" />
+                    </div>
+                </div>
+              
+
+                  <div class="form-group">
+                    <a href="/editprofile?q=<%=profile.email%>" class="btn btn-primary pull-right" style="margin-right:15px">Edit</a>
+                  </div>
+
+                <br />
+                <br />
+            
+                <div class="col-sm-6">
+                  <div class="panel panel-default allSidesSoft panel-main-div">
+                    <div class="panel-heading">Email</div>
+                    <div class="panel-body"> <%= profile.email%></div>
+                  </div>
+                </div>
+            
+
+            
+                <div class="col-sm-6">
+                  <div class="panel panel-default allSidesSoft panel-main-div">
+                    <div class="panel-heading">Gender</div>
+                    <div class="panel-body" style="text-transform: capitalize;"><%= profile.gender%></div>
+                  </div>
+                </div>
+            
+
+            
+                <div class="col-sm-6">
+                  <div class="panel panel-default allSidesSoft panel-main-div">
+                    <div class="panel-heading">Name</div>
+                    <div class="panel-body"><%= profile.name%></div>
+                  </div>
+                </div>
+            
+
+            
+                <div class="col-sm-6">
+                  <div class="panel panel-default allSidesSoft panel-main-div">
+                    <div class="panel-heading">City</div>
+                    <div class="panel-body"> <%= profile.city%></div>
+                  </div>
+                </div>
+            
+
+            
+                <div class="col-sm-6">
+                  <div class="panel panel-default allSidesSoft panel-main-div">
+                    <div class="panel-heading">D.O.B</div>
+                    <div class="panel-body null-link" id="dobtext"><%= profile.dob%></div>
+                  </div>
+                </div>
+            
+
+            
+                <div class="col-sm-6">
+                  <div class="panel panel-default allSidesSoft panel-main-div">
+                    <div class="panel-heading">Phone</div>
+                    <div class="panel-body"> <%= profile.phone%></div>
+                  </div>
+                </div>
+            
+
+            
+              
+          </div>
+      </div>
+    </div>
+</div>
+<br />
+
+</div>
+</div>
+</div>
+</div>
+  <br />
+  <script> src='/javascript/edit.js'</script>
+</body>
+</html>

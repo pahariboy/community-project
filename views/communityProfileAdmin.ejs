@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<% include ./head%>
+</head>
+<body>
+<header>
+<% include ./header%>
+</header>
+
+<div id="page-content-wrapper" style="padding:0;margin-top:60px"> <!--Margin Top is new-->
+         <div class="container-fluid page-content-div" style="padding:0">
+            <div class="row">
+               <div class="col-lg-12 scoll-possible" style="padding:0">
+
+
+  
+  <div class="community-header-top communityheader-profile-mobile" style="padding-top:6px;position:relative;">
+    <div class="container pc">
+    
+</div>
+
+
+</div>
+
+<div class="container community-profile-conatiner">
+<div class="col-sm-2 col-xs-12 center-mobile pc">
+<a href="">
+  <img src="/images/<%=profile[0].pic%>" class="img-communityprofile-pic allSides" style="background:#fff" />
+</a>
+</div>
+
+<div class="col-sm-8 communityprofile-name-pc">
+  <a  class="communityprofile-name-pc" href="">
+<%=profile[0].name%>
+  </a>
+</div>
+
+
+<div class="col-sm-2 col-xs-12 center-mobile" style="padding-top:10px;float:right">
+<div class="dropdown">
+ </div>
+</div>
+
+</div>
+
+
+<div class="container" style="width:20%; float:left ;margin-left:70px">
+      
+
+      <div class="panel panel-default allSidesSoft" style="border-radius:0">
+        
+          <div class="panel-heading" style="border:0;border-radius:0">
+              Members
+            
+          </div>
+        
+        <div class="panel-body" style="border:0;border-radius:0">
+          
+                
+                <%if(profile[0].member.length){
+                  for(var i=0; i < profile[0].member.length;i++){ %>
+                    
+                  <img class="communityProfileUserImage allSidesSoft" src="/images/<%=profile[0].pic%>" />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%=profile[0].member[i]%>
+                </br>
+                </br>
+               <%}}else {%>
+no member right now.....
+               <% }%>
+          
+      <hr>
+        <div >
+          
+              <a >
+                <%=profile[0].member.length%> Members
+              </a>
+              
+                
+          
+        </div>
+           </div>
+              </div>
+         
+
+        <div class="panel panel-default allSidesSoft" style="border-radius:0">
+          <div class="panel-heading" style="border:0;border-radius:0">
+            Community Admins
+          </div>
+          <div class="panel-body" style="border:0;border-radius:0">
+            <div id="commuity-owner-detail">
+              
+                   
+                  <img class="communityProfileUserImage allSidesSoft" src="/images/<%=profile[0].pic%>" />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%=profile[0].owner%>
+                
+
+          </div>
+        </div>
+    </div>
+    </div>
+    <div  style="width:70%;float:right;margin-right:70px">
+
+      <div class="panel panel-default allSidesSoft" style="border-radius:0">
+        <div class="panel-heading center-all" style="border:0;border-radius:0">
+          About Community
+        </div>
+        <div class="panel-body" style="border:0;border-radius:0;overflow:scroll">
+          
+          
+              <p class="short-description center-all">
+                <%-profile[0].description%>
+                
+              </p>
+              
+          
+        </div>
+        
+      </div>
+
+
+    </div>
+</div>
+
+
+</div>
+</div>
+</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<% include ./head%>
+<style>
+
+  table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    
+  }
+  
+  td, th {
+    border: 1px solid #c4c3c3;
+    text-align: left;
+    padding: 15px;
+  
+  }
+  
+  tr:nth-child(even) {
+    background-color: #dddddd;
+  }
+  </style>
+</head>
+<body>
+<header>
+<% include ./header%>
+</header>
+
+
+<div style="margin-top:60px;margin-left:60px">
+        <center><p id="msgalert"></p></center>
+
+        <div class="form-control allSides" id="roleFilter"style="float: left;width:135px;font-weight:bold;">
+          Community List
+        </div>
+
+      
+  <br>
+        <br>
+        <br>
+        <div class="table-wrapper">
+          <table class="table table-striped table-bordered nowrap" id="communitytable" width="100%">
+          </table>
+        </div>
+</div>
+</div> <!--Header-->
+<div style="margin-left:70px" >
+  <table>
+      <tr>
+        <th>Community Name</th>
+        <th>Membership Rule</th>
+        <th>Community Owner</th>
+        <th>Create Date</th>
+        <th>Action</th>
+        <th>Community Pic</th>
+      </tr>
+      <tbody id="change-content">
+   <% if(profile.length){ for(var i = 0;i < profile.length;i++) { %>
+      <tr>
+        <td><%=profile[i].name%></td>
+        <td><%=profile[i].rule%></td>
+        <td><%=profile[i].owner%></td>
+        <td><%=profile[i].date%></td>
+        <td>
+            
+          <a href="/editCommunityAdmin?club=<%=profile[i].name%>&q=<%=data.email%>">   <i class="fa fa-pencil-square-o" aria-hidden="true" style="font-size:25px;padding-left: 0.5em;"></i></a>
+          <a href="/communityProfileAdmin?club=<%=profile[i].name%>&q=<%=data.email%>"><i class="fa fa-info-circle" aria-hidden="true"  style="font-size:25px;padding-left: 0.5em;"></i></a>
+        
+        </td>
+        <td><img src="/images/<%=profile[i].pic%>" style="height:70px;width:100px"/></td>
+      </tr>
+      <% }
+      }else{ %>
+      <tr>
+        <td colspan="6">No community</td>
+      </tr>
+    <% } %>
+    </tbody>
+    </table></br>
+    <p>Total entries  <%=profile.length%></p>
+</div>
+
+
+</div>
+
+
+</body>
+</html>

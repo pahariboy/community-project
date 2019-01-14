@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<% include ./head%>
+<style>
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  
+}
+
+td, th {
+  border: 1px solid #c4c3c3;
+  text-align: left;
+  padding: 15px;
+
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+
+</head>
+<body>
+<header>
+<% include ./header%>
+</header>
+
+
+<div id="page-content-wrapper" style="padding:0;margin-top:60px"> <!--Margin Top is new-->
+         <div class="container-fluid page-content-div" style="padding:0">
+            <div class="row">
+               <div class="col-lg-12 scoll-possible" style="padding:0">
+
+      <div class="form-control allSides" id="roleFilterTitle"style="float: left;width:90px;font-weight:bold;margin-left:70px">
+        User List
+      </div>
+
+     
+    
+      
+
+    
+
+      <br>
+      <br>
+      <br>
+
+      <div style="margin-left:70px" >
+          <table>
+              <tr>
+                <th>Username/Email</th>
+                <th>Contact</th>
+                <th>City</th>
+                <th>Status</th>
+                <th>Role</th>
+                <th>Action</th>
+              </tr>
+              <tbody id="change-content">
+           <% if(profile.length){ 
+                for(var i = 0;i < profile.length;i++) { if(profile[i].flag==='activate') {%>
+              <tr>
+                <td><%=profile[i].email%></td>
+                <td><%=profile[i].phone%></td>
+                <td><%=profile[i].city%></td>
+                <td><%=profile[i].status%></td>
+                <td><%=profile[i].role%></td>
+                <td>
+                  
+                    <a href="mailto:<%=profile[i].email%>?Subject=account has been created on portal..."> <i class="fa fa-envelope-o" style="font-size:25px;"></i> </a>
+                    <% if(profile[i].status==='confirmed'){ %>
+                  <a href="/userListEditProfile?q=<%=profile[i].email%>&name=<%=data.email%>">   <i class="fa fa-pencil-square-o" aria-hidden="true" style="font-size:25px;padding-left: 0.5em;"></i></a>
+                  <% }%>
+                  <a href="/flagSet?q=<%=profile[i].email%>&name=<%=data.email%>"><i class="fa fa-check-circle" style="font-size:25px; padding-left: 0.5em;"></i></a>
+                
+                </td>
+              </tr>
+              <% }}
+              }else{ %>
+              <tr>
+                <td colspan="5">No user</td>
+              </tr>
+            <% } %>
+            </tbody>
+            </table></br>
+            <p>Total entries  <%=profile.length%></p>
+      </div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+
+
+</script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<% include ./head%>
+<script src="https://cloud.tinymce.com/stable/tinymce.min.js"></script>
+
+<script>tinymce.init({ 
+  selector:'textarea',
+plugins : "paste",
+paste_as_text: true
+ });</script>
+<style>#file {
+    position: relative;
+    overflow: hidden;
+  }
+  .input_file {
+    position: absolute;
+    font-size: 50px;
+    opacity: 0;
+    right: 0;
+    top: 0;
+  }</style>
+</head>
+<body>
+<header>
+<% include ./headeruser%>
+</header>
+<div style="margin-top:70px;margin-left:70px; margin-right:150px">
+    <h1>Create community</h1></br>
+
+    <div class="container">
+          
+            <form action="/createCommunity?q=<%=data.email%>" method="POST" enctype="multipart/form-data">
+              <div class="form-group">
+                    <input type="text" class="form-control" name="name" placeholder="Name">
+              </div>
+              <div class="form-group">
+                    Description</br>
+                    <textarea name="description" style="height:200px"></textarea>
+              </div>
+              <div class="radiobutton">
+                    Rule:
+                    <input type="radio" name="type" value="Direct"/>Direct 
+                    <input type="radio" name="type" value="Permission" />Permission
+              </div>
+            </br>
+              <div class="file btn btn-lg btn-warning" id="file">
+                    Upload Image
+                    <input type="file" name="file" class="input_file"/>
+                </div></br></br>
+              <button type="submit" class="btn btn-primary"  style="width:100%; padding:15px">Create Community</button>
+            </form>
+          </div>
+
+</body>
+</html>

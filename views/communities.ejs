@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<% include ./head%>
+<style>
+.button {
+  background-color:#008CBA; /* Green */
+  border: none;
+  color: white;
+  padding: 10px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  float:right;
+  margin-right:450px;
+}
+
+.image
+{
+width:70px;
+height:70px;
+border:solid rgb(157, 209, 223);
+}
+.heading{
+   margin-left:100px;
+}
+</style>
+
+</head>
+<body>
+<header>
+<% include ./headeruser%>
+</header>
+<div id="page-content-wrapper" style="padding:0;margin-top:60px">
+    <div class="container-fluid page-content-div" style="padding:0">
+       <div class="row">
+          <div class="col-lg-12 scoll-possible" style="padding:0">
+
+              
+               <div class="col-sm-12 community-sub-head">
+
+<div class="community-header-top" style="height:50px;padding-top:6px;">
+      <div class="md-form mt-0">
+      
+            <input class="form-control" type="text" placeholder="Search Community...." aria-label="Search" style="float:right;width:30%" onkeypress="search(event)" id="search-panel"> 
+          </div>
+
+<%if (data.role=== 'user'){%>
+<a class="btn community-head-btn active" style="float:left"href="/user?q=<%=data.email%>">
+    <i class="fa fa-users"></i>
+<% } else {%>
+   <a class="btn community-head-btn active" style="float:left"href="/communitymanager?q=<%=data.email%>">
+      <i class="fa fa-users"></i>
+      <%}%>
+     
+     </a>
+<a class="btn community-head-btn" style="margin-left:10px ;float:left"  href="/communities?q=<%=data.email%>">
+ <i class="fa fa-search"></i>
+</a>
+</div>
+</div>
+<div style="margin-top:70px;margin-left:200px;margin-right:200px " id="div-panel">
+
+<% if(profile.length){ 
+      for(var i = 0;i < profile.length;i++) { %>
+
+  <img src="images/<%=profile[i].pic%>"  class="image"  >
+ <% if( profile[i].rule === 'Permission')
+ { %>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<%=profile[i].name%>
+ 
+  <a id="askJoin" onclick="askjoin('<%=profile[i].name%>','<%=data.name%>')" class="button">Ask To Join</a>
+ <span id="demo1"  ></span>
+   <hr>
+  <% } else{ %>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<%=profile[i].name%>
+   
+<a id="join" onclick="join('<%=profile[i].name%>','<%=data.name%>')" class="button">Join</a>
+ <span id="demo"  ></span>
+   <hr>
+   <%} } }
+else{ %>
+   <h1>No user</h1>
+ <% } %>
+</div>
+<div id="mypanel">
+
+</div>
+
+
+<script>
+function join(str,str1)
+{
+      var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+
+      
+       document.getElementById("join").style.display="none";
+document.getElementById("demo").innerHTML="<button class=button>"+this.responseText+"</button>";
+    }
+  };
+  xhttp.open("GET", "/joinCommunity?q="+str+"&name="+str1, true);
+  xhttp.send();
+}
+
+
+function askjoin(str,str1)
+{
+      var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+
+      
+       document.getElementById("askJoin").style.display="none";
+document.getElementById("demo1").innerHTML="<button class=button>"+this.responseText+"</button>";
+    }
+  };
+  xhttp.open("GET", "/askCommunity?q="+str+"&name="+str1, true);
+  xhttp.send();
+}
+
+
+function search(event)
+{
+   if(event.keyCode==13)
+   {
+      var name=document.getElementById("search-panel").value;
+ var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+if(this.responseText==='undefined')
+{
+document.getElementById("div-panel").innerHTML="<h1 class=heading>No community Found</h1>";
+}
+else{
+   
+        var myObj=JSON.parse(this.responseText);
+
+
+var table="<div>";
+
+  table+= "<img class=image src=images/"+myObj.pic+">"+"&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp"+myObj.name;
+  
+  if(myObj.rule==='Direct')
+  {
+     table+="<a class=button onclick=join('myObj.name','<%=data.name%>')>Join</a>";
+     table+= "<span id=demo ></span>";
+  }
+  else{
+     table+="<a class=button>Ask To Join</a>";
+     table+= "<span id=demo1  ></span>";
+  }
+  
+  
+  table+="</div>";
+
+document.getElementById("div-panel").innerHTML=table;
+}
+    }
+  };
+  
+  xhttp.open("GET", "/searchCommunity?name="+name,true);
+  xhttp.send();
+
+}
+}
+</script>
+
+
+
+
+</body>
+</html>

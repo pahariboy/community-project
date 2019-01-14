@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<% include ./head%>
+<style>
+   hr
+   {
+      border-color: black;
+      
+   }
+</style>
+</head>
+<body>
+<header>
+<% include ./headeruser%>
+</header>
+<div id="page-content-wrapper" style="padding:0;margin-top:60px">
+    <div class="container-fluid page-content-div" style="padding:0">
+       <div class="row">
+          <div class="col-lg-12 scoll-possible" style="padding:0">
+
+
+
+
+<div class="community-header-top" style="height:50px;padding-top:6px;">
+<div class="col-sm-12 community-sub-head">
+<a class="btn community-head-btn active" href="/communitymanager?q=<%=data.email%>">
+ <i class="fa fa-users"></i>
+</a>
+<a class="btn community-head-btn" style="margin-left:10px" href="/communities?q=<%=data.email%>">
+ <i class="fa fa-search"></i>
+</a>
+</div>
+</div>
+
+<div class="container" style="padding:0">
+<div class="col-sm-12">
+<div class="panel panel-default allSidesSoft community-panel-main-div">
+<div class="panel-heading community-panel-heading">
+ 
+   <p style="color:white;">My Communities
+  <a href="/createCommunities?q=<%=data.email%>" ><button type="button" class="btn btn-info" style="float:right">Create</button></a>
+</p></div>
+<div class="panel-body" style="padding-bottom:0">
+ 
+</div>
+
+<div class="panel-body" style="padding-top:0;padding-bottom:0">
+     
+      <% if(profile.length){ 
+         for(var i = 0;i < profile.length;i++) { %>
+         
+     <img src="images/<%=profile[i].pic%>"  class="loading-community-panel-image"  style="width:70px;height:70px;border:solid rgb(157, 209, 223);">
+    <% if( profile[i].owner == data.name)
+    { %>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<%=profile[i].name%>
+     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="/manageCommunity?q=<%=data.email%>&club=<%=profile[i].name%>">Request(<%=profile[i].request.length%>)</a>
+      <i class="glyphicon glyphicon-fire" style="float:right;"></i>
+     <% } else{ %>
+      
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<%=profile[i].name%>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="/member?q=<%=data.email%>&club=<%=profile[i].name%>">Members(<%=profile[i].member.length %>)</a>
+      <%} %>
+   </br>
+   <hr>
+
+   <%} }
+   else{ %>
+      <h1>No user</h1>
+      <hr>
+    <% } %>
+
+   
+</div>
+</div>
+<br />
+
+
+
+
+
+
+
+
+</body>
+</html>

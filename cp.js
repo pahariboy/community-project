@@ -12,31 +12,32 @@ var flash=require('connect-flash');
 var session=require('express-session');
 var multer=require('multer');
 var upload=multer({dest:'./public/images'});
+var bcrypt = require('bcryptjs');
 
 var sess;
 // middleware
-
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(flash());
 app.set('view engine','ejs');
 app.use(bodyParser.urlencoded({ extended:true}));
 app.use(bodyParser.json());
-
+app.use(express.static('public'));
 //session
 
 app.use(session({
   secret: 'secret',
   resave: true,
   saveUninitialized: true,
-  cookie: { secure: true },
+  cookie: { secure: true ,maxAge:6000},
  
 }));
 
-app.use(express.static('public'));
+
 
 app.get('/',function(req,res)
 {
-
-res.sendFile(__dirname+"/index.html");
+    res.sendFile(__dirname+"/index.html");
 });
 
 
@@ -56,9 +57,10 @@ else{
 });
 
 
-app.get('/user',(req,res) =>
+app.get('/user',function(req,res)
 {
-    User.compare(req.query.q,function(err,user)
+
+    User.compare(sess.email,function(err,user)
     {
         req.session.user=user;
         User.userCommunity(user.email,function(err,user)
@@ -72,65 +74,69 @@ app.get('/user',(req,res) =>
 });
 
 
-app.get('/flagSet',(req,res) =>
-{console.log(req.session.email);
-    User.compare(req.query.name,function(err,user)
+app.get('/flagSet',function(req,res)
+{
+    User.compare(sess.email,function(err,user)
     {
 
     res.render('flagSet',{profile:req.query.q,data:user}); 
     });  
 });
 
-app.get('/createCommunities',(req,res) =>
+app.get('/createCommunities',function(req,res)
 {
-    User.compare(req.query.q,function(err,user)
+    User.compare(sess.email,function(err,user)
     {
 res.render('createCommunities',{data:user});
 });
 });
 
-app.get('/profile',(req,res) =>
+app.get('/profile',function(req,res)
 {
-    User.compare(req.query.q,function(err,user)
+
+    User.compare(sess.email,function(err,user)
     {
  res.render('profile',{data:user});
 });
 });
 
 //admin
-app.get('/admin',(req,res) =>
-{console.log(sess.email);
-    User.compare(req.query.q,function(err,user)
+app.get('/admin',function(req,res)
+{console.log(req.session);
+
+    User.compare(sess.email,function(err,user)
     {
     res.render('admin',{profile:user,data:user}); 
 });
 });
-app.get('/adduser',(req,res) =>
-{   console.log(sess.email);
-    User.compare(req.query.q,function(err,user)
+app.get('/adduser',function(req,res)  
+{
+    
+    User.compare(sess.email,function(err,user)
     {
     res.render('adduser',{data:user}); 
 }); 
 
 });
-app.get('/changePassword',(req,res) =>
+app.get('/changePassword', function(req,res)
 {
-    User.compare(req.query.q,function(err,user)
+    User.compare(sess.email,function(err,user)
     {
  res.render('changePassword',{data:user});
 });
 });
-app.get('/changePasswordAdmin',(req,res) =>
+app.get('/changePasswordAdmin', function(req,res)
 {  
-    User.compare(req.query.q,function(err,user)
+    User.compare( sess.email,function(err,user)
     {
  res.render('changePasswordadmin',{data:user});
 }); 
 
 });
-app.get('/userlist',(req,res) =>
+app.get('/userlist', function(req,res)
 { 
-    User.compare(req.query.q,function(err,user)
+
+    User.compare( sess.email,function(err,user)
     {
 req.session.user=user;
     User.getAll(function(err,user)
@@ -139,40 +145,41 @@ req.session.user=user;
     });
 });
 });
-app.get('/editprofile',(req,res) =>
+app.get('/editprofile', function(req,res)
 {
 
-        User.editProfile(req.query.q,function(err,user)
+        User.editProfile( sess.email,function(err,user)
         {
         res.render('editprofile',{profile:user,data:user});     
     });
 
 });
 
-app.get('/userListEditProfile',(req,res) =>
+app.get('/userListEditProfile', function(req,res)
 {
-    User.editProfile(req.query.q,function(err,user)
+    User.editProfile( sess.email,function(err,user)
     {
         req.session.user=user; 
-      User.compare(req.query.name,function(err,user)
+      User.compare(req.query.q,function(err,user)
     { 
-    res.render('userListEditProfile',{profile:req.session.user,data:user});     
+    res.render('userListEditProfile',{data:req.session.user,profile:user});     
     });
 });
 });
 
 
-app.get('/editProfileUser',(req,res) =>
+app.get('/editProfileUser', function(req,res)
 {
-      User.editProfile(req.query.q,function(err,user)
+    console.log(sess.email);
+      User.editProfile( sess.email,function(err,user)
     { 
         res.render('editProfileUser',{profile:user,data:user});     
     });
 });
 
-app.get('/communities',(req,res) =>
+app.get('/communities', function(req,res)
 {
-    User.compare(req.query.q,function(err,user)
+    User.compare( sess.email,function(err,user)
     {
         req.session.user=user;
      User.getAllCommunity(function(err,user)
@@ -182,10 +189,10 @@ app.get('/communities',(req,res) =>
 });
 });
 
-app.get('/communityprofile',(req,res) =>
+app.get('/communityprofile', function(req,res)
 {
 
-    User.compare(req.query.q,function(err,user)
+    User.compare( sess.email,function(err,user)
     {
         req.session.user=user;
      User.getcommunity(req.query.club,function(err,user)
@@ -195,10 +202,10 @@ app.get('/communityprofile',(req,res) =>
 });
 });
 
-app.get('/communityprofileAdmin',(req,res) =>
+app.get('/communityprofileAdmin', function(req,res)
 {
 
-    User.compare(req.query.q,function(err,user)
+    User.compare( sess.email,function(err,user)
     {
         req.session.user=user;
      User.getcommunity(req.query.club,function(err,user)
@@ -208,10 +215,10 @@ app.get('/communityprofileAdmin',(req,res) =>
 });
 });
 
-app.get('/editcommunity',(req,res) =>
+app.get('/editcommunity', function(req,res)
 {
 
-    User.compare(req.query.q,function(err,user)
+    User.compare( sess.email,function(err,user)
     {
         req.session.user=user;
      User.getcommunity(req.query.club,function(err,user)
@@ -221,10 +228,10 @@ app.get('/editcommunity',(req,res) =>
 });
 });
 
-app.get('/discussion',(req,res) =>
+app.get('/discussion', function(req,res)
 {
    
-    User.compare(req.query.q,function(err,user)
+    User.compare( sess.email,function(err,user)
     {
         req.session.user=user;
      User.getcommunity(req.query.club,function(err,user)
@@ -235,9 +242,9 @@ app.get('/discussion',(req,res) =>
 
 });
 
-app.get('/manageCommunity',(req,res) =>
+app.get('/manageCommunity', function(req,res)
 {
-    User.compare(req.query.q,function(err,user)
+    User.compare( sess.email,function(err,user)
     {
         req.session.user=user;
     User.getcommunity(req.query.club,function(err,doc)
@@ -247,9 +254,9 @@ app.get('/manageCommunity',(req,res) =>
 });
 });
 
-app.get('/editCommunityAdmin',(req,res) =>
+app.get('/editCommunityAdmin', function(req,res)
 {
-    User.compare(req.query.q,function(err,user)
+    User.compare( sess.email,function(err,user)
     {
         req.session.user=user;
     User.getcommunity(req.query.club,function(err,doc)
@@ -260,9 +267,9 @@ app.get('/editCommunityAdmin',(req,res) =>
 });
 
 
-app.get('/member',(req,res) =>
+app.get('/member', function(req,res)
 {
-    User.compare(req.query.q,function(err,user)
+    User.compare( sess.email,function(err,user)
     {
         req.session.user=user;
     User.getcommunity(req.query.club,function(err,doc)
@@ -272,11 +279,11 @@ app.get('/member',(req,res) =>
 });
 });
 
-app.get('/communitymanager',(req,res) =>
+app.get('/communitymanager', function(req,res)
 {
 
 
-    User.compare(req.query.q,function(err,user)
+    User.compare( sess.email,function(err,user)
     {
         req.session.user=user;
         
@@ -290,14 +297,14 @@ app.get('/communitymanager',(req,res) =>
 
 
 //notie
-app.get('/node_modules/notie/dist/notie.js',(req,res) =>
+app.get('/node_modules/notie/dist/notie.js', function(req,res)
 {
     res.sendFile(__dirname + "/node_modules/notie/dist/notie.js");
 });
 
-app.get('/communitylist',(req,res) =>
+app.get('/communitylist', function(req,res)
 { 
-    User.compare(req.query.q,function(err,user)
+    User.compare( sess.email,function(err,user)
     {
 req.session.user=user;
     
@@ -308,7 +315,7 @@ req.session.user=user;
 });
 });
 
-app.get('/switchstate',(req,res) =>
+app.get('/switchstate', function(req,res)
 { 
     
         res.render('switchstate');
@@ -317,7 +324,7 @@ app.get('/switchstate',(req,res) =>
 
 app.get('/communityUser',function(req,res)
 {
-    User.getDataCommunity(req.query.q,function(err,user)
+    User.getDataCommunity( sess.email,function(err,user)
     {
         res.send(user);
     });
@@ -396,65 +403,61 @@ app.get('/leaveCommunity',function(req,res)
 // all post below
 
 
-app.post('/adduser',(req,res) =>
+app.post('/adduser', function(req,res)
 {    
 
 User.createUser1(req);
-res.redirect('/adduser?q='+req.query.q);
+res.redirect('/adduser');
 });
 
 //login
 
-app.post('/login',function(req,res)
-{ 
+app.post('/login',
+  passport.authenticate('local'),
+  function(req, res) {
+
     sess=req.session;
-    sess.email=req.body.email;
+    sess.email=req.user.email;
+    
+if(req.user.role==='admin'){
 
-User.compare1(req.body,function(err,user)
-{
-    if(!user)
-    {
-        res.redirect('/');
-    }
-    else if(user.role==='admin'){
-
-        if(user.status==='pending')
+        if(req.user.status==='pending')
         {
-         res.render('updateprofile',{profile:user});
+         res.render('updateprofile',{profile:req.user});
         }
 else
 {
-    User.compare2(user,function(err,doc)
+    User.compare2(req.user,function(err,doc)
     {
-    
+   
  res.render('admin',{profile:doc,data:doc});
     });
 }
     }
-    else if(user.role==='user'){
-        if(user.status==='pending')
+    else if(req.user.role==='user'){
+        if(req.user.status==='pending')
         {
-            res.render('updateprofile',{profile:user});
+            res.render('updateprofile',{profile:req.user});
         }
         else{
-    req.session.user=user;
-            User.compare2(user,function(err,doc)
+
+            User.compare2(req.user,function(err,doc)
             {
-           res.render('user',{profile:doc,data:req.session.user});
+           res.render('user',{profile:doc,data:req.user});
             });
     }
 }
     else
     {
-        if(user.status==='pending')
+        if(req.user.status==='pending')
         {
-            res.render('updateprofile',{profile:user});
+            res.render('updateprofile',{profile:req.user});
         }
         else{ 
-            User.compare(user.email,function(err,user)
+            User.compare(req.user.email,function(err,user)
             {
-            req.session.user=user;
-            User.compare2(user,function(err,doc)
+            req.session.user=req.user;
+            User.compare2(req.user,function(err,doc)
             {
            res.render('communitymanager',{profile:doc,data:req.session.user});
             });
@@ -463,7 +466,41 @@ else
 }
 });
 
-});
+
+
+  passport.use(new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password'
+  },
+    function(username,password, done) {
+      User.passportCompare(username,password, function (err, user) {
+          if(user)
+          {
+           
+            return done(null, user);
+          }
+          else{
+        
+              return done(null,false);
+          }
+        });
+    }
+  ));
+
+
+  passport.serializeUser(function(user, done) {
+    done(null, user.id);
+  });
+  
+  passport.deserializeUser(function(id, done) {
+    User.getUserById(id, function(err, user) {
+      done(err, user);
+    });
+  });
+
+
+
+
 app.post('/editProfile',upload.single('profilePhoto'),function(req,res)
 {
 User.updateProfile(req,function(err,user)
@@ -525,18 +562,18 @@ res.redirect('/');
 
 app.post('/changePasswordAdmin',function(req,res)
 {
-User.changePasswordAdmin(req,function()
+User.changePasswordAdmin(sess.email,req,function()
 {
 
-res.redirect('/changepasswordadmin?q='+req.query.q);
+res.redirect('/changepasswordadmin');
 });
 });
 
 app.post('/changePassword',function(req,res)
 {
-User.changePasswordAdmin(req,function()
+User.changePasswordAdmin(sess.email,req,function()
 {
-res.redirect('/changepassword?q='+req.query.q);
+res.redirect('/changepassword');
 });
 });
 
@@ -548,7 +585,7 @@ app.post('/createCommunity',upload.single('file'),function(req,res)
 User.createCommunity(req,user.name,function(err,user)
 {
 
-res.redirect('/createCommunities?q='+req.query.q);
+res.redirect('/createCommunities');
 });
 });
 });
@@ -561,7 +598,7 @@ app.post('/updateCommunity',upload.single('file'),function(req,res)
 User.updateCommunity(req,function(err,user)
 { 
 console.log("community updated successfully");
-res.redirect('editCommunity?q='+req.session.name+'&club='+req.session.club);
+res.redirect('editCommunity?club='+req.session.club);
 });
 });
 
@@ -577,12 +614,12 @@ res.redirect('editCommunityAdmin?q='+req.session.name+'&club='+req.session.club)
 });
 });
 
-app.post('/changeflagSet',(req,res) =>
+app.post('/changeflagSet', function(req,res)
 {
 
    User.changeStatus(req,function()
    {
-    res.redirect('/flagSet?q='+req.query.q+'&name='+req.query.name);
+    res.redirect('/flagSet?q='+req.query.q);
 });    
 });
 
@@ -610,7 +647,7 @@ req.session.user=user;
 User.createDiscussion(req,req.query.club,function(err,user)
 {
     console.log(user);
-    res.send('hello');
+    res.send('Page under Construction');
 //res.render('discussion',{profile:user,data:req.session.user});    
 });
 
@@ -623,4 +660,4 @@ var favicon=require('serve-favicon');
 app.use(favicon(__dirname + "/public/images/logo.png"));
 
 //listen
-app.listen(3030,() => console.log(` app listening on port ${3030}!`));
+app.listen(3030,console.log('app listening to port 3030'));

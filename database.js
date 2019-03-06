@@ -1,10 +1,46 @@
 
 var mongoose=require('mongoose');
-mongoose.connect('mongodb://localhost:27017/login_database', { useNewUrlParser: true });
+
+
+// Build the connection string 
+var dbURI = 'mongodb://localhost:27017/login_database'; 
+
+// Create the database connection 
+mongoose.connect(dbURI, { useNewUrlParser: true }); 
+
+// CONNECTION EVENTS
+// When successfully connected
+mongoose.connection.on('connected', function () {  
+  console.log('Mongoose default connection open to ' + dbURI);
+}); 
+
+// If the connection throws an error
+mongoose.connection.on('error',function (err) {  
+  console.log('Mongoose default connection error: ' + err);
+}); 
+
+// When the connection is disconnected
+mongoose.connection.on('disconnected', function () {  
+  console.log('Mongoose default connection disconnected'); 
+});
+
+// If the Node process ends, close the Mongoose connection 
+process.on('SIGINT', function() {  
+  mongoose.connection.close(function () { 
+    console.log('Mongoose default connection disconnected through app termination'); 
+    process.exit(0); 
+  }); 
+});
+
+
+
+
+
+
+
 mongoose.set('useCreateIndex', true);
 
-
-
+var bcrypt = require('bcryptjs');
 
 var UserSchema1 =mongoose.Schema({
 flag:{
@@ -191,7 +227,7 @@ callback(null,user);
       });
 
     
-}
+};
 module.exports.updateCommunity=function(req,callback)
 {
     community_manager.findOne({name:req.body.name},function(err,user)
@@ -204,11 +240,12 @@ module.exports.updateCommunity=function(req,callback)
             if(err) {
                 console.error('ERROR!');
             }
+            callback(null,user);   
+         });
+            
         
-        });
-        callback(null,user);
     });
-}
+};
 module.exports.compare1=function(doc,callback)
 {
      var query1={email:doc.email};
@@ -229,8 +266,51 @@ module.exports.compare1=function(doc,callback)
         callback(null,false);
     }
 });
-}
+};
+
+module.exports.passportCompare=function(username,password,callback)
+{
  
+     var query1={email:username};
+    user1.findOne(query1, function(err, user) {
+    if(user === null)
+    {
+        
+        callback(null, false);
+    }
+    
+    else if(user.flag ==='activate')
+    {
+
+    bcrypt.compare(password,user.password, function(err, res) {
+        if(res)
+        {
+        
+        callback(null,user);
+        }
+        else{
+            callback(null,false);
+        }
+    });
+
+    
+      
+    }
+ 
+ 
+});
+};
+
+module.exports.getUserById=function(id,done)
+{
+    user1.findById(id, function(err, user) {
+        done(err, user);
+      });
+};
+
+
+
+
 module.exports.compare=function(doc,callback)
 {
      var query2={email:doc};
@@ -239,37 +319,46 @@ module.exports.compare=function(doc,callback)
          callback(null,user);
      
  });
-}
+};
 
-module.exports.changePasswordAdmin=function(req,callback)
+module.exports.changePasswordAdmin=function(email,req,callback)
 {
-     var query2={email:req.query.q};
+     var query2={email:email};
      user1.findOne(query2, function(err, user) {
-        user.password=req.body.newPassword;
+
+        bcrypt.genSalt(10, function(err, salt) {
+            bcrypt.hash(req.body.newPassword, salt, function(err, hash) {
+          
+        user.password=hash;
         user.save(function (err) {
             if(err) {
                 console.error('ERROR!');
             }
         });
          callback();
-     
+    });
+});   
  });
-}
+};
 
-module.exports.changePassword=function(req,callback)
+module.exports.changePassword=function(email,req,callback)
 {
-     var query2={email:req.query.q};
+     var query2={email:email};
      user1.findOne(query2, function(err, user) {
-        user.password=req.body.newPassword;
+
+        bcrypt.genSalt(10, function(err, salt) {
+            bcrypt.hash(req.body.newPassword, salt, function(err, hash) {
+        user.password=hash;
         user.save(function (err) {
             if(err) {
                 console.error('ERROR!');
             }
         });
         callback();
-     
+    });
+}); 
  });
-}
+};
 
 module.exports.changeStatus=function(req,callback)
 {
@@ -284,7 +373,7 @@ module.exports.changeStatus=function(req,callback)
         callback();
      
  });
-}
+};
 
 module.exports.compare2=function(doc,callback)
 {
@@ -318,7 +407,7 @@ module.exports.compare2=function(doc,callback)
     });
  
    }
-}
+};
 
 module.exports.editProfile=function(req,callback)
 {
@@ -328,14 +417,14 @@ var query2={email:req};
         callback(null,user);
     
 });
-   }
+   };
 
 
 module.exports.getUserById=function(id,callback)
 {
     
     user.findById(id,callback);
-} 
+}; 
 module.exports.getUserByEmail=function(email,callback)
 {
     var query={email:email};
@@ -343,7 +432,7 @@ module.exports.getUserByEmail=function(email,callback)
     
         callback(err, user);
       });
-} 
+}; 
 
 module.exports.comparePassword=function(candidatePassword,hash,callback)
 {
@@ -353,28 +442,33 @@ module.exports.comparePassword=function(candidatePassword,hash,callback)
         callback(null,isMatch);
       });
      
-}
+};
 
 module.exports.createUser1=function(req){
-  
 
+    bcrypt.genSalt(10, function(err, salt) {
+        bcrypt.hash(req.body.password, salt, function(err, hash) {
+       hashCode=hash;
+       
+  
     var newuser1=new user1({
         flag:'activate',
         role:req.body.roleoptions,
         phone:req.body.phone,
         city:req.body.city,
         email:req.body.username,
-        password:req.body.password,
+        password:hash,
         status:'pending'
     });
 
     newuser1.save(function (err, user) {
         if (err) return console.error(err);
-console.log("write schema 1succesfully");
+           console.log("write schema 1succesfully");
       });
 
-    
-}
+    });
+});    
+};
   
 
 //updateProfile
@@ -392,7 +486,7 @@ module.exports.updateProfile=function(req,callback)
         user.interest=req.body.interest,
         user.journey=req.body.aboutjourney,
         user.expect=req.body.expect,
-        user.pic=req.file.filename
+        user.pic=req.file.filename,
 
     
         user.save(function (err) {
@@ -403,7 +497,7 @@ module.exports.updateProfile=function(req,callback)
         callback(null,user);    });
       
 
-}
+};
 
 
 module.exports.updateBothProfile=function(req,callback)
@@ -442,7 +536,7 @@ console.log("write schema2 succesfully");
 });
 });
 
-}
+};
 
 module.exports.getAll=function(callback)
 {
@@ -451,7 +545,7 @@ module.exports.getAll=function(callback)
         callback(err,user);
     });
 
-}
+};
 
 
 module.exports.getAllCommunity=function(callback)
@@ -461,7 +555,7 @@ module.exports.getAllCommunity=function(callback)
         callback(err,user);
     });
 
-}
+};
 
 module.exports.getDataCommunity=function(doc,callback)
 {
@@ -469,7 +563,7 @@ community_manager.find({name:doc},function(err,user)
 {
 callback(err,user);
 });
-}
+};
 
 module.exports.userCommunity=function(doc,callback)
 {
@@ -480,7 +574,7 @@ module.exports.userCommunity=function(doc,callback)
             });
         
     });
-}
+};
 
 module.exports.communityOwner=function(user,callback)
 {
@@ -490,7 +584,7 @@ module.exports.communityOwner=function(user,callback)
                 callback(err,user);
             });
         
-}
+};
 
 module.exports.getcommunity=function(user,callback)
 {
@@ -500,7 +594,7 @@ module.exports.getcommunity=function(user,callback)
                 callback(err,user);
             });
         
-}
+};
 
 module.exports.joinCommunity=function(clubname,username,callback)
 {
@@ -521,7 +615,7 @@ community_manager.findOne({name:clubname,member:{$in:[username]}},function(err,u
                 }
   
 });
-}
+};
 
 module.exports.askCommunity=function(clubname,username,callback)
 {
@@ -542,7 +636,7 @@ community_manager.findOne({name:clubname,$or:[{member:{$in:[username]}},{request
                 }
   
 });
-}
+};
 
 
 module.exports.searchCommunity=function(clubname,callback)
@@ -557,7 +651,7 @@ community_manager.findOne({name:clubname},function(err,user)
 callback(null,user);
     }
 });
-}
+};
 module.exports.leaveCommunity=function(username,clubname,callback)
 {
     community_manager.findOne({name:clubname,member:{$in:[username]}},function(err,user)
@@ -576,7 +670,7 @@ module.exports.leaveCommunity=function(username,clubname,callback)
                     }
       
     });
-}
+};
 
 
 
@@ -601,4 +695,4 @@ callback(null,user);
 
 
 
-}
+};

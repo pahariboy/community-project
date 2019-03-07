@@ -174,24 +174,17 @@ type:String,
 required:true,
 unique:true,
 },
-detail:[{
 pic:[{type:String}],
 title:[{type:String}]
-
-}],
-loc:
-{
-    type:String,
-},
-
 });
 var discussion=mongoose.model('discussion',discussionSchema,'discussion');
 
 var commentSchema=mongoose.Schema({
-title_club:{
+title:{
     type:String,
     required:true
 },
+likes:[{type:String}],
 comment:[{type:String}]
 });
 
@@ -565,6 +558,24 @@ callback(err,user);
 });
 };
 
+module.exports.acceptDataCommunity=function(req,callback)
+{
+community_manager.update({ name: req.query.club },{ $push: { member: req.query.q},$pull: { request: req.query.q} },function(err,user)
+    {               callback(null,false);
+         
+});
+}
+
+module.exports.rejectDataCommunity=function(req,callback)
+{
+community_manager.update({ name: req.query.club },{ $pull: { request: req.query.q} },function(err,user)
+    {               callback(null,false);
+         
+});
+}
+
+
+
 module.exports.userCommunity=function(doc,callback)
 {
     user2.findOne({email:doc}, function(err, user) {
@@ -674,25 +685,60 @@ module.exports.leaveCommunity=function(username,clubname,callback)
 
 
 
-module.exports.createDiscussion=function(req,clubname,callback)
+module.exports.createDiscussion=function(req,callback)
 {
+    discussion.find({name:req.query.name},function(err,user)
+    {
+      
+if(user.length!=0)
+{
+    discussion.update({ name: req.query.name },{ $push: { pic:req.file.filename,title:req.body.title} },function(err,user)
+    {         
+        discussion.find({name:req.query.name},function(err,user)
+{
+callback(null,user);
+});             
+         });
+}
+else{
+
 
     var newuser1=new discussion({
         
-        name:clubname,
-        detail:[{
-            pic:[req.file.filename]},{
+        name:req.query.name,
+        pic:[req.file.filename],
             title:[req.body.title]
-              }],
-            loc:"",
+            
+        
     });
 
     newuser1.save(function (err, user) {
         if (err) return console.error(err);
-console.log("write discussion schema succesfully");
+discussion.find({name:user.name},function(err,user)
+{
 callback(null,user);
-      });
+});      });
+
+
+}
+    }); 
+
 
 
 
 };
+
+
+module.exports.getDiscussion=function(clubname,callback)
+{
+discussion.find({name:clubname},function(err,user)
+{
+    if(user.length!=0)
+    {
+callback(null,user);
+    }
+    else{
+        callback(null,false);
+    }
+});
+}

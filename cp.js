@@ -235,9 +235,12 @@ app.get('/discussion', function(req,res)
     {
         req.session.user=user;
      User.getcommunity(req.query.club,function(err,user)
-    { 
-        res.render('discussion',{profile:user,data:req.session.user});     
-    });
+    { req.user=user;
+        User.getDiscussion(req.query.club,function(err,user)
+        {
+
+        res.render('discussion',{profile:req.user,data:req.session.user,comm:user});     
+    });    });
 });
 
 });
@@ -324,9 +327,30 @@ app.get('/switchstate', function(req,res)
 
 app.get('/communityUser',function(req,res)
 {
-    User.getDataCommunity( sess.email,function(err,user)
+    User.getDataCommunity( req.query.q,function(err,user)
     {
         res.send(user);
+    });
+
+});
+
+
+app.get('/acceptUser',function(req,res)
+{
+    
+   User.acceptDataCommunity( req,function(err,user)
+    {
+      
+    });
+
+});
+
+app.get('/rejectUser',function(req,res)
+{
+    
+   User.rejectDataCommunity( req,function(err,user)
+    {
+      
     });
 
 });
@@ -644,13 +668,15 @@ app.post('/discussion',upload.single('file'),function(req,res)
 User.compare(req.query.q,function(err,user)
 {
 req.session.user=user;
-User.createDiscussion(req,req.query.club,function(err,user)
+User.getDataCommunity( req.query.name,function(err,user)
 {
-    console.log(user);
-    res.send('Page under Construction');
-//res.render('discussion',{profile:user,data:req.session.user});    
-});
+req.user=user;
+User.createDiscussion(req,function(err,user)
+{
 
+ res.render('discussion',{profile:req.user,data:req.session.user,comm:user});    
+});
+});
 });
 });
 
